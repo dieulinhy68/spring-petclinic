@@ -1,0 +1,6 @@
+---
+# vars file for gitlab
+gitlab:
+  url: "https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh"
+  package: "gitlab-ce"
+  hostname: "localhost"

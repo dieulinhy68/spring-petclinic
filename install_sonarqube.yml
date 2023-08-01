@@ -1,0 +1,6 @@
+---
+- hosts: all
+  name: Install Sonarqube on Linux
+  roles:
+    - sonarqube
+

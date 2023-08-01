@@ -1,0 +1,8 @@
+java_debian: "openjdk-8-jre"
+java_redhat: " java-1.8.0-openjdk-devel.i686"
+nexus:
+  url: "https://download.sonatype.com/nexus/3/latest-unix.tar.gz"
+  resource: "nexus-3.58.1-02-unix.tar.gz"
+  directory: "/opt/nexus/nexus-3.58.1-02"
+  log: "/opt/nexus/nexus-3.58.1-02/sonartype-work/nexus3"
+  version: "nexus-3.58.1-02"

@@ -1,0 +1,10 @@
+---
+- name: Install Nexus on Linux
+  hosts: all
+  roles:
+    - nexus
+  handlers:
+    - name: daemon-reload
+      systemd:
+        daemon-reload: true
+        name: nexus.service

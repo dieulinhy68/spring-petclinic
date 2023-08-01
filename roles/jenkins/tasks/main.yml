@@ -1,0 +1,75 @@
+---
+- name: download repo jenkins on redhat
+  get_url:
+    url: 'https://pkg.jenkins.io/redhat-stable/jenkins.repo'
+    dest: "/etc/yum.repos.d/jenkins.repo"
+  when: ansible_os_family == "RedHat"
+
+- name: download key jenkins on RedHat
+  rpm_key:
+    key: "{{ jenkins.key_redhat }}"
+  become: yes
+  when: ansible_os_family == "RedHat"
+
+- name: Download Jenkins with URL key on on debian
+  apt_key:
+    url: "{{ jenkins.key_URL }}"
+    state: present
+  become: yes
+  when: ansible_os_family == "Debian"
+- name: download repo jenkins on debian
+  apt_repository: repo='deb https://pkg.jenkins.io/debian-stable  binary/'
+  become: yes
+  when: ansible_os_family == "Debian"
+
+
+- name:  Install Java on Debian
+  apt:
+    name: "{{ java.debian }}"
+    state: present
+  when: ansible_os_family == "Debian"
+- name: install java 17 binary on redhat 
+  get_url:
+    url: "{{java.redhat_repo}}"
+    dest: /tmp
+  become: true
+- name: Install java on Redhat 
+  yum:
+    name: "{{java.redhat}}"
+    state: present
+  when: ansible_os_family == "RedHat"
+- name: Update OS debian
+  apt:
+    update_cache: yes
+    state: latest
+  become: true
+  when: ansible_os_family == "Debian"
+- name: update os redhat
+  yum:
+    update_cache: true
+    state: latest
+  become: true
+  when: ansible_os_family == "RedHat"
+
+- name: Install Jenkins
+  apt:
+    name: jenkins
+    state: latest
+  when: ansible_os_family == "Debian"
+
+- name: Start/stop jenkins on Debian 
+  apt:
+    name: jenkins
+    state: started
+  when: ansible_os_family == "Debian"
+
+- name: install jenkins on redhat
+  yum:
+    name: jenkins
+    state: present
+  when: ansible_os_family == "RedHat"
+- name: Start/stop jenkins on Redhat
+  yum:
+    name: jenkins
+    state: installed
+  when: ansible_os_family == "RedHat"

@@ -1,0 +1,13 @@
+---
+java:
+  debian: "openjdk-11-jre"
+  redhat_repo: "https://download.oracle.com/java/17/latest/jdk-17_linux-x64_bin.rpm"
+  redhat: "jdk-17_linux-x64_bin.rpm"
+
+##jenkins
+
+jenkins:
+  repo_URL: "https://pkg.jenkins.io/debian-stable  binary/"
+  key_URL: "https://pkg.jenkins.io/debian/jenkins.io-2023.key"
+  repo_redhat: "https://pkg.jenkins.io/redhat/jenkins.repo"
+  key_redhat: "https://pkg.jenkins.io/redhat/jenkins.io-2023.key"

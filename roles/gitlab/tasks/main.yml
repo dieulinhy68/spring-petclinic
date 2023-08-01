@@ -1,0 +1,37 @@
+---
+- name: necessary dependencies
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - curl
+    - policycoreutils-python
+    - openssh-server
+    - perl
+    - postfix
+  when: ansible_os_family == "RedHat"
+- name: start/enable services
+  ansible.builtin.systemd:
+    name: "{{ service }}"
+    enabled: yes
+    state: started
+  loop_control:
+    loop_var: service
+  loop:
+    - sshd
+    - postfix
+  when: ansible_os_family == "RedHat"
+
+- name: add git key
+  shell: curl "https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh" | sudo bash
+- name: update centos
+  yum:
+    name: epel-release
+    state: latest
+  when: ansible_os_family == "RedHat"  
+- name: install gitlab
+  yum:
+    name: gitlab-ce
+    state: latest
+  environment: EXTERNAL_URL= "127.0.0.2"
+  when: ansible_os_family == "RedHat"

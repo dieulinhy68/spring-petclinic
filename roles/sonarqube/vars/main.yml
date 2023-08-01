@@ -1,0 +1,11 @@
+---
+postgres:
+  db_name: "sonartype_db"
+  user: "sonar"
+  user_password: "AbcXyz@123"
+sonar:
+  zip: "https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-10.1.0.73491.zip"
+  dir_zip: "/opt/sonarqube-10.1.0.73491.zip"
+  directory: "/opt/sonarqube-10.1.0.73491"
+  folder: "/opt/sonar"
+java: "openjdk-17-jre"

@@ -1,0 +1,117 @@
+---
+- name: download require tool on RedHat"
+  yum:
+    name: "{{item}}"
+    state: present
+  loop:
+    - wget
+    - vi
+    - curl
+    - unzip
+  when: ansible_os_family == "RedHat"
+- name: download require tool on Debian"
+  apt:
+    name: "{{item}}"
+    state: present
+  loop:
+    - wget
+    - vim
+    - curl
+    - unzip
+  when: ansible_os_family == "Debian"
+
+- name: download resource Nexus
+  get_url:
+    url: "{{nexus.url}}"
+    dest: /opt
+
+- name: install openjdk on Debian"
+  apt:
+    name: '{{ java_debian }}'
+    state: present
+  when: ansible_os_family == "Debian"
+- name: install openjdk on RedHat""
+  yum:
+    name: '{{ java_redhat }}'
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: create new user nexus
+  ansible.builtin.user:
+    name: nexus
+    state: present
+
+- name: untract folder resource
+  unarchive:
+    src: "/opt/{{nexus.resource}}"
+    dest: "/opt"
+    remote_src: yes
+
+- name: create nexus folder
+  ansible.builtin.file:
+    path: "/opt/nexus"
+    state: directory
+    owner: nexus
+    group: nexus
+    mode: "0755"
+
+- name: change modify for user nexus
+  file:
+    path: "{{nexus.directory}}"
+    state: directory
+    owner: nexus
+    mode: 0755
+- name: rename folder resource
+  ansible.builtin.copy:
+    remote_src: true
+    src: "/opt/{{nexus.version}}"
+    dest: "/opt/nexus"
+
+- name: Set nexus user
+  ansible.builtin.lineinfile:
+    dest: "{{nexus.directory}}/bin/nexus.rc"
+    regexp: .*run_as_user=.*
+    line: run_as_user= "nexus"
+
+- name: config file nexus.vmoptions
+  lineinfile:
+    path: "{{nexus.directory}}/bin/nexus.vmoptions"
+    regex: "{{item.regex}}"
+    line: "{{item.line}}"
+  loop:
+    - { regex: '^-Djava.io.tmpdir=.* ', line: '-Djava.io.tmpdir={{nexus.log}}/tmp'}
+    - { regex: '^-Dkaraf.data=.* ', line: '-Dkaraf.data={{nexus.log}}'}
+    - { regex: '^-XX:LogFile=.*', line: '-XX:LogFile={{nexus.log}}/log/jvm.log'}
+    - { regex: '^-Dkaraf.log=.*', line: '-Dkaraf.log={{nexus.log}}/log' }
+
+- name: create a new file service
+  copy:
+    dest: "/etc/systemd/system/nexus.service"
+    content: |
+      [Unit]
+      Description=nexus.service
+      After=network.target
+
+      [Service]
+      Type=forking
+      LimitNOFILE=65536
+      User=nexus
+      Group=nexus
+      ExecStart=/opt/nexus/nexus-3.58.1-02/bin/nexus start
+      ExecStop=/opt/nexus/nexus-3.58.1-02/bin/nexus stop
+      User=nexus
+      Restart=on-abort
+      [Install]
+      WantedBy=multi-user.target
+
+- name: change modify service
+  ansible.builtin.file:
+    path: "/etc/systemd/system/nexus.service"
+    mode: "755"
+
+- name: start service nexus
+  systemd:
+    name: nexus.service
+    state: started
+    enabled: yes
+    daemon_reload: yes

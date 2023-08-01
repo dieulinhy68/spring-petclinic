@@ -1,0 +1,163 @@
+---
+- name: download require tool on RedHat"
+  yum:
+    name: "{{item}}"
+    state: present
+  loop:
+    - wget
+    - vi
+    - curl
+    - unzip
+  when: ansible_os_family == "RedHat"
+- name: Install java on debian
+  apt:
+    name: "{{java_debian}}"
+    state: present
+  when: ansible_os_family == "Debian"
+- name: Install java on RedHat
+  yum:
+    name: "{{java_redhat}}"
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Add repo Postgres in RedHat
+  get_url:
+    url: "{{postgres.repo_redhat}}"
+    dest: "{{postgres.dest_repo}}"
+    validate_certs: no
+  when: ansible_os_family == "RedHat"
+- name: config repo
+  yum:
+    name: "{{postgres.dest_repo}}"
+    state: present
+  when: ansible_os_family == "RedHat"
+- name: Update epel-release
+  yum:
+    name: epel-release
+    state: latest
+  when: ansible_os_family == "RedHat"
+
+- name: Install Postgresql in Debian
+  apt:
+    name: postgresql-12
+    state: present
+  when: ansible_os_family == "Debian"
+- name: Install Postgresql in RedHat
+  yum:
+    name: "{{item}}"
+    state: present
+  loop:
+    - postgresql14
+    - postgresql14-server
+    - postgresql14-contrib
+  when: ansible_os_family == "RedHat"
+
+- name: Install Python package for PostgreSQL on Debian
+  ansible.builtin.package:
+    name: python3-psycopg2
+    state: present
+  when: ansible_os_family == "Debian"
+- name: Install Python package for PostgreSQL on RedHat
+  ansible.builtin.package:
+    name: python-psycopg2
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: Initialize database cluster
+  shell: /usr/pgsql-14/bin/postgresql-14-setup initdb
+  when: ansible_os_family == "RedHat"
+- name: start service postgres
+  service:
+    name: postgresql-14
+    state: started
+  when: ansible_os_family == "RedHat"
+
+- name: create user in postgresql
+  postgresql_user:
+    state: present
+    name: "{{postgres.user}}"
+    password: "{{postgres.user_password}}"
+  become: yes
+  become_user: postgres
+
+- name: create database in postgresql
+  postgresql_db:
+    state: present
+    name: "{{postgres.db_name}}"
+  become: yes
+  become_user: postgres
+
+- name: grant db user
+  postgresql_privs:
+    type: database
+    database: "{{postgres.db_name}}"
+    roles: "{{postgres.user}}"
+    grant_option: no
+    privs: all
+  become: yes
+  become_user: postgres
+
+- name: Install sonarqube
+  get_url:
+    url: "{{sonar.zip}}"
+    dest: /opt
+
+- name: create new user nexus
+  ansible.builtin.user:
+    name: sonar
+    state: present
+
+    #- name: create folder sonar
+    #ansible.builtin.file:
+    #path: "/opt/sonar"
+    #state: directory
+    #mode: "0755"
+    #owner: sonar
+    #group: sonar
+
+- name: unarchive resource sonar
+  ansible.builtin.unarchive:
+    src: "{{sonar.dir_zip}}"
+    dest: "/opt"
+    owner: sonar
+    group: sonar
+    remote_src: yes
+
+- name: Setting access to the database
+  lineinfile:
+    path: "{{sonar.directory}}/conf/sonar.properties"
+    regex: "{{item.regex}}"
+    line: "{{item.line}}"
+  loop:
+    - {regex: '^sonar.jdbc.username=*', line: 'sonar.jdbc.username=sonar'}
+    - {regex: '^sonar.jdbc.password=* ', line: 'sonar.jdbc.password=sonar'}
+      #- {regex: 'sonar.jdbc.url=jdbc:postgresql://localhost/sonar*', line: 'sonar.jdbc.url=jdbc:postgresql://localhost/sonar'}
+      #    - {regex: '^sonar.web.port=*', line: 'sonar.web.port=9000'}
+
+- name: create a new file service sonar
+  copy:
+    dest: "/etc/systemd/system/sonar.service"
+    content: |
+      [Unit]
+      Description=SonarQube service
+      After=syslog.target network.target
+
+      [Service]
+      Type=forking
+      ExecStart=/opt/sonarqube-10.1.0.73491/bin/linux-x86-64/sonar.sh start
+      ExecStop=/opt/sonarqube-10.1.0.73491/bin/linux-x86-64/sonar.sh stop
+      User=sonar
+      Group=sonar
+      Restart=always
+      LimitNOFILE=65536
+      LimitNPROC=4096
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: start service sonar
+  systemd:
+    name: sonar.service
+    state: started
+    enabled: yes
+    daemon_reload: yes
