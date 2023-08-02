@@ -4,6 +4,6 @@ WORKDIR /home/node
 COPY ./ /home/node/
 RUN npm install
 RUN npm config set registry http://registry.npmjs.org/
-EXPOSE 8080
+EXPOSE 9000
 CMD ["node", "index.js"]
 
