@@ -1,7 +1,7 @@
 pipeline {
    agent any
    environment {
-      PROJECT = dlinh/webapp
+      PROJECT = "dlinh/webapp"
    }
    stages {
       stage('Build Docker Image'){
