@@ -12,7 +12,7 @@ pipeline {
         sh "cat /opt/docker_token.txt | docker login --username dlinh --password-stdin"
         }
       }
-    }
+      }
       stage('Build Docker Image'){
          steps {
             script {
