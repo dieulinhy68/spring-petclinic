@@ -134,27 +134,10 @@
       #- {regex: 'sonar.jdbc.url=jdbc:postgresql://localhost/sonar*', line: 'sonar.jdbc.url=jdbc:postgresql://localhost/sonar'}
       #    - {regex: '^sonar.web.port=*', line: 'sonar.web.port=9000'}
 
-- name: create a new file service sonar
-  copy:
+- name: template  file service sonar
+  ansible.builtin.template:
+    src: /roles/sonarqube/sonar.j2
     dest: "/etc/systemd/system/sonar.service"
-    content: |
-      [Unit]
-      Description=SonarQube service
-      After=syslog.target network.target
-
-      [Service]
-      Type=forking
-      ExecStart=/opt/sonarqube-10.1.0.73491/bin/linux-x86-64/sonar.sh start
-      ExecStop=/opt/sonarqube-10.1.0.73491/bin/linux-x86-64/sonar.sh stop
-      User=sonar
-      Group=sonar
-      Restart=always
-      LimitNOFILE=65536
-      LimitNPROC=4096
-
-      [Install]
-      WantedBy=multi-user.target
-
 - name: start service sonar
   systemd:
     name: sonar.service
