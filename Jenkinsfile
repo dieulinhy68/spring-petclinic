@@ -6,7 +6,7 @@ pipeline {
                script {
                   app = docker.build("dlinh/webapp")
                   app.inside {
-                     sh 'echo $(curl localhost:8080)'
+                     sh 'echo $(curl localhost:9000)'
                   }
                }
             }
