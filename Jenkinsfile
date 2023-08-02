@@ -1,7 +1,7 @@
 pipeline {
    agent any
    stages{
-      stage('add git lab'){
+      stage('add git lab server'){
          steps{
             git credentialsId: 'webhook-spring' , url: 'http://192.168.20.20/root/webhook-spring.git'
          }
