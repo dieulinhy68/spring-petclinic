@@ -4,6 +4,15 @@ pipeline {
       PROJECT = "dlinh/webapp"
    }
    stages {
+      stage('Pre Build') { 
+      steps {
+        script {
+        sh 'echo Prebuild command'
+        sh 'echo Logging in to Images Registry'
+        sh "cat /opt/docker_token.txt | docker login --username dlinh --password-stdin"
+        }
+      }
+    }
       stage('Build Docker Image'){
          steps {
             script {
