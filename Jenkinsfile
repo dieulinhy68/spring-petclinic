@@ -20,10 +20,11 @@ pipeline {
     stages {
        stage('gitlab') {
           steps {
-             echo 'Notify GitLab'
-             updateGitlabCommitStatus name: 'build', state: 'pending'
-             updateGitlabCommitStatus name: 'build', state: 'success'
+             sh 'echo helloworld'
           }
        }
     }
 }
+
+///Secret token-jenkins-gitlab-test0208-00e7a282f38a01899f5a5e8018bf2f75
+//token in jenkins gitlab-jenkins-token 11775aa7c85cf24f9cd6e93fa092d8dfd7
