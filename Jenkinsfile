@@ -4,7 +4,7 @@ pipeline {
       PROJECT = "dlinh/webapp"
    }
    stages {
-      stage('Pre Build') { 
+      stage('Pre Build Image') { 
       steps {
         script {
         sh 'echo Prebuild command'
