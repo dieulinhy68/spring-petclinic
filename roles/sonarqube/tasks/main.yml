@@ -24,7 +24,6 @@
   get_url:
     url: "{{postgres.repo_redhat}}"
     dest: "{{postgres.dest_repo}}"
-    validate_certs: no
   when: ansible_os_family == "RedHat"
 - name: config repo
   yum:
@@ -107,13 +106,7 @@
     name: sonar
     state: present
 
-    #- name: create folder sonar
-    #ansible.builtin.file:
-    #path: "/opt/sonar"
-    #state: directory
-    #mode: "0755"
-    #owner: sonar
-    #group: sonar
+
 
 - name: unarchive resource sonar
   ansible.builtin.unarchive:
@@ -131,13 +124,18 @@
   loop:
     - {regex: '^sonar.jdbc.username=*', line: 'sonar.jdbc.username=sonar'}
     - {regex: '^sonar.jdbc.password=* ', line: 'sonar.jdbc.password=sonar'}
-      #- {regex: 'sonar.jdbc.url=jdbc:postgresql://localhost/sonar*', line: 'sonar.jdbc.url=jdbc:postgresql://localhost/sonar'}
-      #    - {regex: '^sonar.web.port=*', line: 'sonar.web.port=9000'}
 
-- name: template  file service sonar
-  ansible.builtin.template:
-    src: /roles/sonarqube/sonar.j2
+
+- name: create file service sonar
+  ansible.builtin.file:
+    path: "/etc/systemd/system/sonar.service"
+    state: touch
+- name: Copy file service sonar
+  template:
+    src: "roles/sonarqube/templates/sonar.j2"
     dest: "/etc/systemd/system/sonar.service"
+
+
 - name: start service sonar
   systemd:
     name: sonar.service

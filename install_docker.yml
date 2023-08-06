@@ -1,0 +1,5 @@
+---
+- hosts: all
+  name: Install docker on centos and ubuntu
+  role:
+    - docker

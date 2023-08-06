@@ -1,0 +1,62 @@
+---
+- name: Installing Docker Prerequisite packages on Centos
+  yum:
+    name: "{{item}}"
+    state: present
+    update_cache: yes
+  loop:
+    - yum-utils
+    - device-mapper-persistent-data
+    - curl
+    - lvm2
+  when: ansible_os_family == "RedHat"
+- name: Installing Docker Prerequisite packages on ubuntu
+  apt:
+    name: "{{item}}"
+    state: present
+    update_cache: yes
+  loop:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - gnupg-agent
+    - software-properties-common
+  when: ansible_os_family == "Debian"
+- name: Add Docker repo on Centos
+  get_url:
+    url: "{{docker.repo_centos}}"
+    dest: /etc/yum.repos.d/docker-ce.repo
+  mode: 0644
+  when: ansible_os_family == "RedHat"
+- name: Add Docker repo on ubuntu
+  apt_key:
+    url: "{{docker.repo_ubuntu}}"
+  when: ansible_os_family == "Debian"
+- name: add docker repository to apt on ubuntu
+  apt_repository:
+    repo: 'deb https://download.docker.com/linux/ubuntu bionic stable'
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name:  Installing Docker latest version on Centos
+  yum:
+    name: docker-ce
+    state: present
+  when: ansible_os_family == "RedHat"
+
+- name: install docker on ubuntu
+  apt:
+    name: "{{item}}"
+    state: latest
+    update_cache: yes
+  loop:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+  when: ansible_os_family == "Debian"
+
+- name: Starting and Enabling Docker service
+  service:
+    name: docker
+    state: started
+    enabled: yes

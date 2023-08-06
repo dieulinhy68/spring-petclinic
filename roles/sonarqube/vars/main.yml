@@ -3,9 +3,12 @@ postgres:
   db_name: "sonartype_db"
   user: "sonar"
   user_password: "AbcXyz@123"
+  repo_redhat: "https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm"
+  dest_repo: "/etc/yum.repos.d/pgdg-redhat-repo-latest.noarch.rpm"
 sonar:
   zip: "https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-10.1.0.73491.zip"
   dir_zip: "/opt/sonarqube-10.1.0.73491.zip"
   directory: "/opt/sonarqube-10.1.0.73491"
   folder: "/opt/sonar"
-java: "openjdk-17-jre"
+java_debian: "openjdk-17-jre"
+java_redhat: "java-11-openjdk.x86_64"

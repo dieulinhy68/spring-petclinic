@@ -1,0 +1,18 @@
+---
+- hosts: all
+  name:  install service
+  become: yes
+  tasks:
+    - name: install service on ubuntu
+      apt:
+        name: "{{item}}"
+        state: present
+      loop:
+        - tree
+        - wget
+        - curl
+    - name: copy file from master to node
+      copy:
+        src: /etc/ansible/abc.txt
+        dest: /tmp/abc.txt
+
