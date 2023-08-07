@@ -1,15 +1,10 @@
 pipeline {
     agent any
     stages {
-        stage('checkout the code') {
-        steps {
-            git 'http://192.168.20.20/root/webhook-spring.git'
-        }
-        }
         stage('build the code') {
         steps {
             sh 'mvn clean package'
-        }
+            }
         }
             // stage('SonarQube analysis') {
         //     steps {
