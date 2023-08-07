@@ -1,13 +1,17 @@
 pipeline {
     agent any
     stages {
-        stage('Build') {
-            steps {
-                withSonarQubeEnv(installationName: 'SonarQube Server') { 
-                sh './mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:3.7.0.1746:sonar'
-            }
+        stage('checkout the code') {
+        steps {
+            git 'http://192.168.20.20/root/webhook-spring.git'
         }
-        // stage('SonarQube analysis') {
+        }
+        stage('build the code') {
+        steps {
+            sh 'mvn clean package'
+        }
+        }
+            // stage('SonarQube analysis') {
         //     steps {
         //         echo 'Notify SonarQube analysis'
         //         sh 'mvn clean verify sonar:sonar \
@@ -17,6 +21,5 @@ pipeline {
         //             -Dsonar.token=sqp_80095923ebfc18d05d291368cd181b7cfb7f2a84'    
         //     }
         // }
-    }
 }
 }
