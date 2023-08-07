@@ -3,8 +3,8 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                echo 'Notify build maven'
-                sh 'mnv package'
+                withSonarQubeEnv(installationName: 'SonarQube Server') { 
+                sh 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.7.0.1746:sonar'
             }
         }
         // stage('SonarQube analysis') {
